@@ -161,7 +161,7 @@ public class LinkedList {
 	 * @return the index of the block, or -1 if the block is not in this list
 	 */
 	public int indexOf(MemoryBlock block) {
-		// check for complex
+		
 		for(int i=0; i<size; i++){
 			if (getBlock(i) == block) {
 				return i;
@@ -179,7 +179,7 @@ public class LinkedList {
 	 */
 	public void remove(Node node) {
 		int index = indexOf(node.block);
-		// not found
+		
 		if (index == -1){
 			return;
 		} else if (index == 0){

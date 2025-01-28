@@ -70,7 +70,7 @@ public class MemorySpace {
         }
         if(matchB != null) 
 		{
-            MemoryBlock newBlock = new MemoryBlock(save.block.baseAddress , length);
+            MemoryBlock newBlock = new MemoryBlock(matchB.block.baseAddress , length);
             allocatedList.addLast(newBlock);
             matchB.block.length -= length;
             int address = matchB.block.baseAddress;
