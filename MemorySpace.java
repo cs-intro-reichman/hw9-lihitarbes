@@ -58,8 +58,30 @@ public class MemorySpace {
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
 	public int malloc(int length) {		
-		//// Replace the following statement with your code
-		return -1;
+		Node current = freeList.getFirst();
+        Node matchB = null;
+        while(current != null) {
+            if(current.block.length >= length)
+			{
+                matchB = current;
+                break;
+            }
+            current=current.next;
+        }
+        if(matchB != null) 
+		{
+            MemoryBlock newBlock = new MemoryBlock(save.block.baseAddress , length);
+            allocatedList.addLast(newBlock);
+            matchB.block.length -= length;
+            int address = matchB.block.baseAddress;
+            matchB.block.baseAddress += length;
+            if(matchB.block.length == 0)
+			{
+				freeList.remove(matchB);
+			}
+            return address;
+        }
+        return -1;
 	}
 
 	/**
@@ -71,8 +93,24 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		//// Write your code here
+		if(freeList.getSize() == 1 && freeList.getFirst().block.baseAddress == 0 && freeList.getFirst().block.length == 100) {
+			throw new IllegalArgumentException("index must be between 0 and size");
+		}
+		Node temp = allocatedList.getNode(0);
+		Node match = null;
+		while(temp != null) {
+			if(temp.block.baseAddress == address) {
+				match = temp;
+				break;
+			}
+			temp = temp.next;
+		}
+		if(match == null) return;
+		freeList.addLast(match.block);
+		allocatedList.remove(match.block);
 	}
+	
+		
 	
 	/**
 	 * A textual representation of the free list and the allocated list of this memory space, 
@@ -88,6 +126,35 @@ public class MemorySpace {
 	 * In this implementation Malloc does not call defrag.
 	 */
 	public void defrag() {
-		//// Write your code here
+		ListIterator iterator = new ListIterator(freeList.getFirst());
+		MemoryBlock zeroBlock = new MemoryBlock(0, 0);
+		MemoryBlock currentBlock;
+		ListIterator subIterator;
+		int numOfZeroBlocks = 0;
+		while (iterator.hasNext()){
+			currentBlock = iterator.current.block;
+			subIterator = new ListIterator(freeList.getFirst());
+			while (!currentBlock.equals(zeroBlock) && subIterator.hasNext()) {
+				if (!currentBlock.equals(subIterator.current.block) && !subIterator.current.block.equals(zeroBlock))
+					if (currentBlock.baseAddress + currentBlock.length == subIterator.current.block.baseAddress){
+						iterator.current.block = new MemoryBlock(currentBlock.baseAddress, currentBlock.length + subIterator.current.block.length);
+						subIterator.current.block = zeroBlock;
+						currentBlock = iterator.current.block;
+						numOfZeroBlocks++;
+					}
+					else if (subIterator.current.block.baseAddress + subIterator.current.block.length == currentBlock.baseAddress){
+						subIterator.current.block = new MemoryBlock(subIterator.current.block.baseAddress, currentBlock.length + subIterator.current.block.length);
+						iterator.current.block = zeroBlock;
+						currentBlock = iterator.current.block;
+						numOfZeroBlocks++;
+					}
+				subIterator.next();
+			}
+			iterator.next();
+		}
+		for(int i = 0; i < numOfZeroBlocks; i++){
+			freeList.remove(zeroBlock);
+		}
 	}
-}
+	}
+
