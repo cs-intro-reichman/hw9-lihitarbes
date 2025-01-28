@@ -126,35 +126,24 @@ public class MemorySpace {
 	 * In this implementation Malloc does not call defrag.
 	 */
 	public void defrag() {
-		ListIterator iterator = new ListIterator(freeList.getFirst());
-		MemoryBlock zeroBlock = new MemoryBlock(0, 0);
-		MemoryBlock currentBlock;
-		ListIterator subIterator;
-		int numOfZeroBlocks = 0;
-		while (iterator.hasNext()){
-			currentBlock = iterator.current.block;
-			subIterator = new ListIterator(freeList.getFirst());
-			while (!currentBlock.equals(zeroBlock) && subIterator.hasNext()) {
-				if (!currentBlock.equals(subIterator.current.block) && !subIterator.current.block.equals(zeroBlock))
-					if (currentBlock.baseAddress + currentBlock.length == subIterator.current.block.baseAddress){
-						iterator.current.block = new MemoryBlock(currentBlock.baseAddress, currentBlock.length + subIterator.current.block.length);
-						subIterator.current.block = zeroBlock;
-						currentBlock = iterator.current.block;
-						numOfZeroBlocks++;
-					}
-					else if (subIterator.current.block.baseAddress + subIterator.current.block.length == currentBlock.baseAddress){
-						subIterator.current.block = new MemoryBlock(subIterator.current.block.baseAddress, currentBlock.length + subIterator.current.block.length);
-						iterator.current.block = zeroBlock;
-						currentBlock = iterator.current.block;
-						numOfZeroBlocks++;
-					}
-				subIterator.next();
+		if (freeList.getSize() <= 1) {
+			return;
+		}
+		freeList.sort();
+		Node current = freeList.getFirst();
+		while (current != null && current.next != null) {
+			MemoryBlock currentBlock = current.block;
+			MemoryBlock nextBlock = current.next.block;
+	
+			if (currentBlock.baseAddress + currentBlock.length == nextBlock.baseAddress) {
+				currentBlock.length += nextBlock.length;
+				freeList.remove(current.next);
+			} else {
+				current = current.next;
 			}
-			iterator.next();
 		}
-		for(int i = 0; i < numOfZeroBlocks; i++){
-			freeList.remove(zeroBlock);
-		}
+		
 	}
-	}
+	
+}
 

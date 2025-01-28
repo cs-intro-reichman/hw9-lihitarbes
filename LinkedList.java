@@ -91,7 +91,7 @@ public class LinkedList {
 					"index must be between 0 and size");
 		}
 		Node node = new Node(block);
-		// first index //
+		
 		if (index == 0) {
 			node.next = first;
 			first = node;
@@ -99,13 +99,13 @@ public class LinkedList {
 			if (size == 1) {
 				last = node;
 			} 
-		// last index //
+		
 		} else if (index == size) {
 			last.next = node;
 			last = node;
 			++size;
 			
-		// somewhere in between //
+		
 		} else {
 			Node beforeNode = getNode(index-1);
 			node.next = beforeNode.next;
